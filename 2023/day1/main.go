@@ -34,7 +34,7 @@ type numMap struct {
 	value string
 }
 
-var numbers = [9]numMap{numMap{word: "one", value: "1"}, numMap{word: "two", value: "2"}, numMap{word: "three", value: "3"}, numMap{word: "four", value: "4"}, numMap{word: "five", value: "5"}, numMap{word: "six", value: "6"}, numMap{word: "seven", value: "7"}, numMap{word: "eight", value: "8"}, numMap{word: "nine", value: "9"}}
+var numbers = [9]numMap{numMap{word: "one", value: "o1e"}, numMap{word: "two", value: "t2o"}, numMap{word: "three", value: "t3e"}, numMap{word: "four", value: "f4r"}, numMap{word: "five", value: "f5e"}, numMap{word: "six", value: "s6x"}, numMap{word: "seven", value: "s7n"}, numMap{word: "eight", value: "e8t"}, numMap{word: "nine", value: "n9e"}}
 
 func part2(lines []string) (sum int) {
 	// iterate over lines in the file

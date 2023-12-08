@@ -31,3 +31,15 @@ func Test2(t *testing.T) {
 		t.Fail()
 	}
 }
+func Test3(t *testing.T) {
+	lines, err := input.GetInputLines("./input.txt")
+	if err != nil {
+		t.Fail()
+	}
+
+	sum := part2(lines)
+	log.Printf("%d", sum)
+	if sum != 54208 {
+		t.Fail()
+	}
+}
