@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc2md/scrape"
 	"fmt"
 	"log"
 	"strings"
@@ -9,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func main() {
+func ExampleConvert() {
 
 	converter := md.NewConverter("", true, nil)
 
@@ -36,4 +37,13 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("md ->", markdown)
+}
+func main() {
+	ExampleConvert()
+	days, err := scrape.ScrapeDays("")
+	if err != nil {
+		log.Panicf("Could not scrape days: %v\n", err)
+	}
+
+	fmt.Printf("Parsed: %v\n", days)
 }
