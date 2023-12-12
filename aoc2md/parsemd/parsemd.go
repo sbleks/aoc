@@ -70,7 +70,7 @@ func RunConvert() {
 
 	header := fmt.Sprintf("# %s\n\n[%s](%s)\n\n## Description\n\n### Part One\n\n", title, baseURL+dayURL, baseURL+dayURL)
 	markdown = header + markdown
-	log.Printf("Markdown:\n%s\n", markdown)
+	// log.Printf("Markdown:\n%s\n", markdown)
 
 	err = os.MkdirAll("../"+year+"/day"+day+"/", os.FileMode(int(0777)))
 	if err != nil {
