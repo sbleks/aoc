@@ -1,4 +1,4 @@
-package main
+package parsemd
 
 import (
 	"aoc2md/scrape"
@@ -11,8 +11,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func ExampleConvert() {
-
+func New() *md.Converter {
 	converter := md.NewConverter("", true, nil)
 
 	converter.AddRules(
@@ -45,58 +44,16 @@ func ExampleConvert() {
 		},
 		// more rules
 	)
-
-	html := `<div><code>I shouldn't be emphasized <em>but I should be</em></code></div>
-	<div><code><em>I should be all emphasized</em></code></div>
-	<strong>Important</strong>`
-
-	markdown, err := converter.ConvertString(html)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("md ->", markdown)
+	return converter
 }
 
 func ConvertDay(selection *goquery.Selection) (string, error) {
-	converter := md.NewConverter("", true, nil)
-
-	converter.AddRules(
-		md.Rule{
-			Filter: []string{"code"},
-			Replacement: func(content string, selec *goquery.Selection, opt *md.Options) *string {
-				// You need to return a pointer to a string (md.String is just a helper function).
-				// If you return nil the next function for that html element
-				// will be picked. For example you could only convert an element
-				// if it has a certain class name and fallback if not.
-				// log.Printf("children text: %s, text: %s\n", selec.Children().Text(), selec.Text())
-				if selec.Children().Text() == selec.Text() {
-					content = strings.TrimSpace(content)
-					return md.String("_`" + selec.Text() + "`_")
-				} else {
-					return md.String("`" + content + "`")
-				}
-			},
-		},
-		md.Rule{
-			Filter: []string{"span"},
-			Replacement: func(content string, selec *goquery.Selection, opt *md.Options) *string {
-				html, err := goquery.OuterHtml(selec)
-				if err != nil {
-					return md.String(content)
-				}
-
-				return md.String(html)
-			},
-		},
-		// more rules
-	)
-
+	converter := New()
 	return converter.Convert(selection), nil
 
 }
 
-func main() {
-	// ExampleConvert()
+func RunConvert() {
 	baseURL := "https://adventofcode.com"
 	year := "2023"
 	day := "4"
