@@ -123,3 +123,30 @@ func ScrapeDay(url string) (*goquery.Selection, string, error) {
 
 	return html, title, nil
 }
+
+func ScrapeDayInput(url string) (string, error) {
+	baseURL := "http://adventofcode.com"
+	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f73a7044c36ed47476f83951350c98741621a00141d008a7e64f8b8da15349b02a9f455e20309bc08d708a56b8edba9d18b975584d35e28f5"}
+	req, err := http.NewRequest(http.MethodGet, baseURL+url+"/input", http.NoBody)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.AddCookie(&cookie)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return doc.Text(), nil
+}
