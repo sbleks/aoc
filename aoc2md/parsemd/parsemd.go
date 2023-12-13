@@ -2,6 +2,7 @@ package parsemd
 
 import (
 	"aoc2md/scrape"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -53,10 +54,9 @@ func ConvertDay(selection *goquery.Selection) (string, error) {
 
 }
 
-func RunConvert() {
+func RunConvert(day string) {
 	baseURL := "https://adventofcode.com"
 	year := "2023"
-	day := "4"
 	dayURL := "/" + year + "/day/" + day
 	selection, title, err := scrape.ScrapeDay(dayURL)
 	if err != nil {
@@ -66,6 +66,11 @@ func RunConvert() {
 	markdown, err := ConvertDay(selection)
 	if err != nil {
 		log.Panicf("Could not convert day: %v\n", err)
+	}
+
+	input, err := scrape.ScrapeDayInput(dayURL)
+	if err != nil {
+		log.Panicf("Could not convert input: %v\n", err)
 	}
 
 	header := fmt.Sprintf("# %s\n\n[%s](%s)\n\n## Description\n\n### Part One\n\n", title, baseURL+dayURL, baseURL+dayURL)
@@ -78,6 +83,7 @@ func RunConvert() {
 	}
 
 	os.Chdir("../" + year + "/day" + day + "/")
+	os.WriteFile("input.txt", []byte(input), os.FileMode(int(0777)))
 	os.WriteFile("README.md", []byte(markdown), os.FileMode(int(0777)))
 
 	starterText := `package main
@@ -85,8 +91,8 @@ func RunConvert() {
 import (
 	"aocInput"
 	"log"
-	"strconv"
-	"strings"
+	// "strconv"
+	// "strings"
 )
 
 func part1(lines []string) (sum int) {
@@ -94,23 +100,25 @@ func part1(lines []string) (sum int) {
 }
 
 
-func part1(lines []string) (sum int) {
+func part2(lines []string) (sum int) {
 	return 0
 }
 
 func main() {
-
-	lines, err := input.GetInputLines("./example.txt")
+	lines, err := input.GetInputLines("./input.txt")
 	if err != nil {
 		log.Fatalf("Could not read file: %v", err)
 	}
 
-	// sum := part1(lines)
+	sum := part1(lines)
 	// sum := part2(lines)
 
 	log.Printf("Sum is: %v", sum)
 }
 `
 
-	os.WriteFile("main.go", []byte(starterText), os.FileMode(int(0777)))
+	if _, err := os.Stat("main.go"); errors.Is(err, os.ErrNotExist) {
+		// file does not exist
+		os.WriteFile("main.go", []byte(starterText), os.FileMode(int(0777)))
+	}
 }
