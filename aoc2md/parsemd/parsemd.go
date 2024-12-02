@@ -56,7 +56,7 @@ func ConvertDay(selection *goquery.Selection) (string, error) {
 
 func RunConvert(day string) {
 	baseURL := "https://adventofcode.com"
-	year := "2023"
+	year := "2024"
 	dayURL := "/" + year + "/day/" + day
 	selection, title, err := scrape.ScrapeDay(dayURL)
 	if err != nil {
@@ -77,12 +77,12 @@ func RunConvert(day string) {
 	markdown = header + markdown
 	// log.Printf("Markdown:\n%s\n", markdown)
 
-	err = os.MkdirAll("../"+year+"/day"+day+"/", os.FileMode(int(0777)))
+	err = os.MkdirAll("./"+year+"/day"+day+"/", os.FileMode(int(0777)))
 	if err != nil {
 		log.Panicf("Could not make dir: %v\n", err)
 	}
 
-	os.Chdir("../" + year + "/day" + day + "/")
+	os.Chdir("./" + year + "/day" + day + "/")
 	os.WriteFile("input.txt", []byte(input), os.FileMode(int(0777)))
 	os.WriteFile("README.md", []byte(markdown), os.FileMode(int(0777)))
 
