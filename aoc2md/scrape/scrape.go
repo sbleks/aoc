@@ -1,7 +1,6 @@
 package scrape
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -14,34 +13,34 @@ func stripHyphens(str string) string {
 	return r.Replace(str)
 }
 
-func ExampleScrape() {
-	// Request the HTML page.
-	res, err := http.Get("http://metalsucks.net")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
+// func ExampleScrape() {
+// 	// Request the HTML page.
+// 	res, err := http.Get("http://metalsucks.net")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer res.Body.Close()
+// 	if res.StatusCode != 200 {
+// 		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+// 	}
 
-	// Load the HTML document
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+// 	// Load the HTML document
+// 	doc, err := goquery.NewDocumentFromReader(res.Body)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	// Find the review items
-	doc.Find(".left-content article .post-title").Each(func(i int, s *goquery.Selection) {
-		// For each item found, get the title
-		title := s.Find("a").Text()
-		fmt.Printf("Review %d: %s\n", i, title)
-	})
-}
+// 	// Find the review items
+// 	doc.Find(".left-content article .post-title").Each(func(i int, s *goquery.Selection) {
+// 		// For each item found, get the title
+// 		title := s.Find("a").Text()
+// 		fmt.Printf("Review %d: %s\n", i, title)
+// 	})
+// }
 
 func ScrapeDays(year string) ([][]string, error) {
 	if year == "" {
-		year = "2023"
+		year = "2024"
 	}
 
 	return scrapeDays(year)
@@ -56,7 +55,7 @@ func scrapeDays(year string) (out [][]string, err error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		log.Fatalf("ScrapeDays status code error when getting '%s': %d %s", baseURL+"/"+year, res.StatusCode, res.Status)
 	}
 
 	// Load the HTML document
@@ -82,7 +81,7 @@ func scrapeDays(year string) (out [][]string, err error) {
 
 func ScrapeDay(url string) (*goquery.Selection, string, error) {
 	baseURL := "http://adventofcode.com"
-	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f73a7044c36ed47476f83951350c98741621a00141d008a7e64f8b8da15349b02a9f455e20309bc08d708a56b8edba9d18b975584d35e28f5"}
+	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f35f9dd0ee20e141ee5718b4c54891697d3febdf0b9bd19e16214f213830311b48b0bb877696ed9d04c297b7916c5a993d7dc3f83738ba0a6"}
 	req, err := http.NewRequest(http.MethodGet, baseURL+url, http.NoBody)
 	if err != nil {
 		log.Fatal(err)
@@ -95,7 +94,7 @@ func ScrapeDay(url string) (*goquery.Selection, string, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		log.Fatalf("ScrapeDay status code error when getting %s: %d %s", baseURL+url, res.StatusCode, res.Status)
 	}
 
 	// Load the HTML document
@@ -126,7 +125,7 @@ func ScrapeDay(url string) (*goquery.Selection, string, error) {
 
 func ScrapeDayInput(url string) (string, error) {
 	baseURL := "http://adventofcode.com"
-	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f73a7044c36ed47476f83951350c98741621a00141d008a7e64f8b8da15349b02a9f455e20309bc08d708a56b8edba9d18b975584d35e28f5"}
+	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f35f9dd0ee20e141ee5718b4c54891697d3febdf0b9bd19e16214f213830311b48b0bb877696ed9d04c297b7916c5a993d7dc3f83738ba0a6"}
 	req, err := http.NewRequest(http.MethodGet, baseURL+url+"/input", http.NoBody)
 	if err != nil {
 		log.Fatal(err)
@@ -139,7 +138,7 @@ func ScrapeDayInput(url string) (string, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		log.Fatalf("ScrapeDayInput status code error getting %s: %d %s", baseURL+url+"/input", res.StatusCode, res.Status)
 	}
 
 	// Load the HTML document
