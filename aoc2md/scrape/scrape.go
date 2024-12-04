@@ -3,9 +3,11 @@ package scrape
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/joho/godotenv"
 )
 
 func stripHyphens(str string) string {
@@ -80,8 +82,13 @@ func scrapeDays(year string) (out [][]string, err error) {
 }
 
 func ScrapeDay(url string) (*goquery.Selection, string, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	session := os.Getenv("AOC_SESSION")
 	baseURL := "http://adventofcode.com"
-	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f35f9dd0ee20e141ee5718b4c54891697d3febdf0b9bd19e16214f213830311b48b0bb877696ed9d04c297b7916c5a993d7dc3f83738ba0a6"}
+	cookie := http.Cookie{Name: "session", Value: session}
 	req, err := http.NewRequest(http.MethodGet, baseURL+url, http.NoBody)
 	if err != nil {
 		log.Fatal(err)
@@ -124,8 +131,13 @@ func ScrapeDay(url string) (*goquery.Selection, string, error) {
 }
 
 func ScrapeDayInput(url string) (string, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	session := os.Getenv("AOC_SESSION")
 	baseURL := "http://adventofcode.com"
-	cookie := http.Cookie{Name: "session", Value: "53616c7465645f5f35f9dd0ee20e141ee5718b4c54891697d3febdf0b9bd19e16214f213830311b48b0bb877696ed9d04c297b7916c5a993d7dc3f83738ba0a6"}
+	cookie := http.Cookie{Name: "session", Value: session}
 	req, err := http.NewRequest(http.MethodGet, baseURL+url+"/input", http.NoBody)
 	if err != nil {
 		log.Fatal(err)

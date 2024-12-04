@@ -96,12 +96,12 @@ import (
 )
 
 func part1(lines []string) (sum int) {
-	return 0
+	return sum
 }
 
 
 func part2(lines []string) (sum int) {
-	return 0
+	return sum
 }
 
 func main() {
@@ -110,10 +110,11 @@ func main() {
 		log.Fatalf("Could not read file: %v", err)
 	}
 
-	sum := part1(lines)
-	// sum := part2(lines)
+	sum1 := part1(lines)
+	sum2 := part2(lines)
 
-	log.Printf("Sum is: %v", sum)
+	log.Printf("Part 1  is: %v", sum1)
+	log.Printf("Part 2  is: %v", sum2)
 }
 `
 
