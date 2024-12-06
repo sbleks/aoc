@@ -7,229 +7,155 @@ import (
 	"strings"
 )
 
-// Part 1 plan is to iterate through every line and if the line is deemed to be safe (meets conditions), then we add it to our sum. If it fails, just return early and move on
-func part1(lines []string) (sum int) {
+// // Part 1 plan is to iterate through every line and if the line is deemed to be safe (meets conditions), then we add it to our sum. If it fails, just return early and move on
+// func part1(lines []string) (sum int) {
 
-	for _, line := range lines {
-		items := strings.Split(line, " ")
+// 	for _, line := range lines {
+// 		items := strings.Split(line, " ")
 
-		var curr, prev int = 0, 0
-		var diffState, directionState, inc, dec bool = true, false, false, false
+// 		var curr, prev int = 0, 0
+// 		var diffState, directionState, inc, dec bool = true, false, false, false
 
-		// log.Printf("Starting row: %v", row)
+// 		// log.Printf("Starting row: %v", row)
 
-		for col, item := range items {
-			level, err := strconv.Atoi(item)
-			if err != nil {
-				log.Fatalf("Cannot parse level to number: %v", err)
-			}
-			// log.Printf("Starting row: %v col: %v, curr: %v, prev: %v", row, col, curr, prev)
+// 		for col, item := range items {
+// 			level, err := strconv.Atoi(item)
+// 			if err != nil {
+// 				log.Fatalf("Cannot parse level to number: %v", err)
+// 			}
+// 			// log.Printf("Starting row: %v col: %v, curr: %v, prev: %v", row, col, curr, prev)
 
-			curr = level
-			diff := curr - prev
+// 			curr = level
+// 			diff := curr - prev
 
-			// log.Printf("[ITEM INIT] curr: %v, prev: %v, diff: %v\n", curr, prev, diff)
+// 			// log.Printf("[ITEM INIT] curr: %v, prev: %v, diff: %v\n", curr, prev, diff)
 
-			prev = curr
+// 			prev = curr
 
-			if col == 0 {
-				// log.Print("first iteration, skipping")
-				continue
-			}
+// 			if col == 0 {
+// 				// log.Print("first iteration, skipping")
+// 				continue
+// 			}
 
-			if diff > 0 {
-				inc = true
-			}
+// 			if diff > 0 {
+// 				inc = true
+// 			}
 
-			if diff < 0 {
-				dec = true
-				diff = -diff
-			}
+// 			if diff < 0 {
+// 				dec = true
+// 				diff = -diff
+// 			}
 
-			if diff > 3 || diff < 1 {
-				diffState = false
-				// log.Printf("[ITEM STATE] Breaking. diffState: %v, inc: %v, dec: %v\n", diffState, inc, dec)
-				break
-			}
+// 			if diff > 3 || diff < 1 {
+// 				diffState = false
+// 				// log.Printf("[ITEM STATE] Breaking. diffState: %v, inc: %v, dec: %v\n", diffState, inc, dec)
+// 				break
+// 			}
 
-			// log.Printf("[ITEM STATE] diffState: %v, inc: %v, dec: %v\n", diffState, inc, dec)
+// 			// log.Printf("[ITEM STATE] diffState: %v, inc: %v, dec: %v\n", diffState, inc, dec)
+// 		}
+
+// 		if (inc && !dec) || (dec && !inc) {
+// 			directionState = true
+// 		}
+
+// 		if diffState && directionState {
+// 			sum += 1
+// 		}
+// 		// log.Printf("[LEVEL STATE] diffState: %v, directionState: %v, inc: %v, dec: %v, sum: %v\n", diffState, directionState, inc, dec, sum)
+// 	}
+// 	return sum
+// }
+
+func parseReports(line string) (report []int) {
+	items := strings.Split(line, " ")
+
+	for _, item := range items {
+		level, err := strconv.Atoi(item)
+		if err != nil {
+			log.Fatalf("Cannot parse level to number: %v", err)
 		}
 
-		if (inc && !dec) || (dec && !inc) {
-			directionState = true
-		}
-
-		if diffState && directionState {
-			sum += 1
-		}
-		// log.Printf("[LEVEL STATE] diffState: %v, directionState: %v, inc: %v, dec: %v, sum: %v\n", diffState, directionState, inc, dec, sum)
-	}
-	return sum
-}
-
-type Report struct {
-	levels               []int
-	diffs                []int
-	unsafeLevelPositions []int
-	increasing           bool
-	decreasing           bool
-	diffIssue            bool
-	directionIssue       bool
-	safe                 bool
-}
-
-func parseReports(lines []string) (reports []Report) {
-	for _, line := range lines {
-		report := Report{}
-		items := strings.Split(line, " ")
-
-		for _, item := range items {
-			level, err := strconv.Atoi(item)
-			if err != nil {
-				log.Fatalf("Cannot parse level to number: %v", err)
-			}
-
-			report.levels = append(report.levels, level)
-
-		}
-		report = calculateDiffs(report)
-
-		reports = append(reports, report)
-
-	}
-	return reports
-}
-
-func checkReportSafety(report Report) Report {
-	for i, diff := range report.diffs {
-		if diff > 0 {
-			if report.decreasing {
-				report.directionIssue = true
-				report.unsafeLevelPositions = append(report.unsafeLevelPositions, i)
-			}
-
-			report.increasing = true
-		}
-
-		if diff < 0 {
-			diff = -diff
-
-			if report.increasing {
-				report.directionIssue = true
-				report.unsafeLevelPositions = append(report.unsafeLevelPositions, i)
-			}
-
-			report.decreasing = true
-		}
-
-		if diff > 3 || diff < 1 {
-			report.diffIssue = true
-			report.unsafeLevelPositions = append(report.unsafeLevelPositions, i)
-		}
-
+		report = append(report, level)
 	}
 
-	if report.decreasing && report.increasing {
-		report.directionIssue = true
-	}
-
-	if !report.diffIssue && !report.directionIssue {
-		report.safe = true
-	}
 	return report
 }
 
-func calculateDiffs(report Report) Report {
-	var curr, prev int = 0, 0
+// func checkReportSafety(levels []int) bool {
+// 	flagInc, flagDec := false, false
+// 	for i := 1; i < len(levels); i++ {
+// 		diff := levels[i] - levels[i-1]
 
-	for i, item := range report.levels {
-		curr = item
-		diff := curr - prev
-		prev = curr
-		if i == 0 {
-			continue
-		}
-		report.diffs = append(report.diffs, diff)
-	}
-	return report
-}
+// 		if diff > 0 {
+// 			flagInc = true
+// 		} else if diff < 0 {
+// 			flagDec = true
+// 		} else {
+// 			return false
+// 		}
 
-func removeLevel(report Report, s int) Report {
-	r := report
-	newReport := Report{
-		levels: append(r.levels[:s], r.levels[s+1:]...),
-	}
+// 		if flagInc && flagDec {
+// 			return false
+// 		}
 
-	// log.Printf("removeLevel New Report: %v", newReport)
+// 		if diff > 3 || diff < -3 {
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }
 
-	return newReport
-}
+// func checkReportSafetyWithDeletion(levels []int) bool {
 
-func (r Report) Copy() Report {
-	levels := make([]int, len(r.levels))
-	diffs := make([]int, len(r.diffs))
-	unsafeLevelPositions := make([]int, len(r.unsafeLevelPositions))
-	copy(levels, r.levels)
-	copy(diffs, r.diffs)
-	copy(unsafeLevelPositions, r.unsafeLevelPositions)
+// 	for i := 0; i < len(levels); i++ {
+// 		return isReportSafeWithDeletion(levels, i)
+// 	}
 
-	return Report{
-		levels:               levels,
-		diffs:                diffs,
-		unsafeLevelPositions: unsafeLevelPositions,
-		increasing:           r.increasing,
-		decreasing:           r.decreasing,
-		diffIssue:            r.diffIssue,
-		directionIssue:       r.directionIssue,
-		safe:                 r.safe,
-	}
-}
+// 	return false
+// }
 
-func part2(lines []string) (sum int) {
-	reports := parseReports(lines)
-	for _, report := range reports {
-		report = checkReportSafety(report)
+// func isReportSafeWithDeletion(levels []int, s int) bool {
+// 	r := make([]int, len(levels))
+// 	copy(r, levels)
 
-		if len(report.unsafeLevelPositions) != 0 {
-			for _, issueIdx := range report.unsafeLevelPositions {
-				log.Printf("%v", report)
+// 	if s == len(levels)-1 {
+// 		r = r[:s]
+// 	} else {
+// 		r = append(r[:s], r[s+1:]...)
+// 	}
+// 	return checkReportSafety(r)
+// }
 
-				r := report.Copy()
-				newReport1 := removeLevel(r, issueIdx)
-				// log.Printf("after newReport1 created\nr: %v \n report: %v\n newReport1: %v", r, report, newReport1)
-				r = report.Copy()
-				newReport2 := removeLevel(r, issueIdx+1)
-				// log.Printf("after newReport2 created\nr: %v \n report: %v\n newReport1: %v", r, report, newReport1)
-				newReport1 = calculateDiffs(newReport1)
-				newReport1 = checkReportSafety(newReport1)
-				// log.Printf("newReport1: %v", newReport1)
+// func part2(lines []string) (sum int) {
+// 	reports := parseReports(lines)
+// 	countWithDeletion := 0
+// 	for _, report := range reports {
 
-				newReport2 = calculateDiffs(newReport2)
-				newReport2 = checkReportSafety(newReport2)
-				// log.Printf("newReport2: %v", newReport2)
+// 		if checkReportSafety(report) {
+// 			sum += 1
+// 		} else if checkReportSafetyWithDeletion(report) {
+// 			countWithDeletion += 1
+// 		}
+// 	}
 
-				if newReport1.safe {
-					report = newReport1
-					log.Printf("[UPDATE]: Setting newReport1 to report: %v", report)
-					break
-				} else if newReport2.safe {
-					report = newReport2
-					log.Printf("[UPDATE]: Setting newReport2 to report: %v", report)
-					break
-				}
-			}
-		}
+// 	log.Printf("Count of sums: %v, Count with Deletions: %v, Total Count: %v", sum, countWithDeletion, sum+countWithDeletion)
 
-		if report.safe {
-			log.Printf("[COUNTING]: %v", report)
-			sum += 1
-		}
+// 	return sum + countWithDeletion
+// }
 
-		// log.Printf("%v\n", report)
-	}
+// func main() {
+// 	lines, err := input.GetInputLines("./input.txt")
+// 	if err != nil {
+// 		log.Fatalf("Could not read file: %v", err)
+// 	}
 
-	return sum
-}
+// 	sum1 := part1(lines)
+// 	sum2 := part2(lines)
+
+// 	log.Printf("Sum1 is: %v", sum1)
+// 	log.Printf("Sum2 is: %v", sum2)
+// }
 
 func main() {
 	lines, err := input.GetInputLines("./input.txt")
@@ -237,9 +163,71 @@ func main() {
 		log.Fatalf("Could not read file: %v", err)
 	}
 
-	sum1 := part1(lines)
-	sum2 := part2(lines)
+	getTotalSafeReportCount(lines)
+}
 
-	log.Printf("Sum1 is: %v", sum1)
-	log.Printf("Sum2 is: %v", sum2)
+func isReportSafe(reportNum []int) bool {
+	flagIncrease, flagDecrease := false, false
+
+	for i := 1; i < len(reportNum); i++ {
+		diff := reportNum[i] - reportNum[i-1]
+
+		if diff > 0 {
+			flagIncrease = true
+		} else if diff < 0 {
+			flagDecrease = true
+		} else {
+			return false
+		}
+
+		if flagDecrease && flagIncrease {
+			return false
+		}
+
+		if diff > 3 || diff < -3 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func checkReportSafetyWithDeletion(reportNum []int) bool {
+
+	for i := 0; i < len(reportNum); i++ {
+		isSafe := isReportSafeWithDeletion(reportNum, i)
+		if isSafe {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isReportSafeWithDeletion(report []int, deleteIndex int) bool {
+	copyReport := make([]int, len(report))
+	copy(copyReport, report)
+
+	if deleteIndex == len(copyReport)-1 {
+		copyReport = copyReport[:deleteIndex]
+	} else {
+		copyReport = append(copyReport[:deleteIndex], copyReport[deleteIndex+1:]...)
+	}
+	return isReportSafe(copyReport)
+}
+
+func getTotalSafeReportCount(reports []string) int {
+	var count int
+	var countWithDeletion int
+	for _, report := range reports {
+		reportNum := parseReports(report)
+
+		if isReportSafe(reportNum) {
+			count++
+		} else if checkReportSafetyWithDeletion(reportNum) {
+			countWithDeletion++
+		}
+	}
+	log.Printf("answer for part 1: %d\nanswer for part 2: %d\n", count, count+countWithDeletion)
+	return count
 }
