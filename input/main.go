@@ -19,3 +19,12 @@ func GetInputLines(path string) (lines []string, err error) {
 	}
 	return lines, nil
 }
+
+func GetRawInput(path string) (string, error) {
+	file, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	return string(file), nil
+}
