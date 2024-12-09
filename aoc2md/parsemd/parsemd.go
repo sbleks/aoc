@@ -118,6 +118,12 @@ func main() {
 }
 `
 
+	makefileText := `
+run: main.go
+	go run main.go
+`
+	os.WriteFile("Makefile", []byte(makefileText), os.FileMode(int(0777)))
+
 	if _, err := os.Stat("main.go"); errors.Is(err, os.ErrNotExist) {
 		// file does not exist
 		os.WriteFile("main.go", []byte(starterText), os.FileMode(int(0777)))
