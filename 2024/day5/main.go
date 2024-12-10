@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -82,13 +83,10 @@ func parseInput(in string) (map[int]Node, [][]int) {
 		pageNums = append(pageNums, numSlice)
 	}
 
-	// log.Printf("%v", graph)
-
 	return graph, pageNums
 }
 
 func checkOrder(g map[int]Node, curr, next int) bool {
-	// log.Printf("curr: %v, next: %v\ng: %v", curr, next, g)
 	if slices.Contains(g[curr].after, next) {
 		return true
 	}
@@ -96,18 +94,62 @@ func checkOrder(g map[int]Node, curr, next int) bool {
 	return false
 }
 
+func Less(g map[int]Node, curr, next int) bool {
+	if slices.Contains(g[curr].before, next) {
+		return true
+	}
+
+	return false
+}
+
+// func part1(in string) (sum int) {
+// 	graph, pageNums := parseInput(in)
+
+// 	for _, pageNum := range pageNums {
+// 		inOrder := false
+// 		for i := 1; i < len(pageNum); i++ {
+// 			inOrder = checkOrder(graph, pageNum[i-1], pageNum[i])
+// 			// log.Printf("%v", inOrder)
+// 			if !inOrder {
+// 				break
+// 			}
+// 		}
+// 		if inOrder {
+// 			mid := pageNum[len(pageNum)/2]
+// 			sum += mid
+// 		}
+// 	}
+
+// 	return sum
+// }
+
+func checkPageNumOrders(g map[int]Node, pageNum []int, part2 bool) bool {
+	if !part2 {
+		part2 = false
+	}
+
+	inOrder := false
+	for i := 1; i < len(pageNum); i++ {
+		inOrder = checkOrder(g, pageNum[i-1], pageNum[i])
+		if !inOrder {
+			if part2 {
+				sort.SliceStable(pageNum, func(i, j int) bool {
+					return Less(g, pageNum[i], pageNum[j])
+				})
+				return false
+			} else {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func part1(in string) (sum int) {
 	graph, pageNums := parseInput(in)
 
 	for _, pageNum := range pageNums {
-		inOrder := false
-		for i := 1; i < len(pageNum); i++ {
-			inOrder = checkOrder(graph, pageNum[i-1], pageNum[i])
-			// log.Printf("%v", inOrder)
-			if !inOrder {
-				break
-			}
-		}
+		inOrder := checkPageNumOrders(graph, pageNum, false)
 		if inOrder {
 			mid := pageNum[len(pageNum)/2]
 			sum += mid
@@ -121,15 +163,7 @@ func part2(in string) (sum int) {
 	graph, pageNums := parseInput(in)
 
 	for _, pageNum := range pageNums {
-		inOrder := false
-		for i := 1; i < len(pageNum); i++ {
-			inOrder = checkOrder(graph, pageNum[i-1], pageNum[i])
-			// log.Printf("%v", inOrder)
-			if !inOrder {
-				//TODO: insert sorting func here
-				break
-			}
-		}
+		inOrder := checkPageNumOrders(graph, pageNum, true)
 		if !inOrder {
 			mid := pageNum[len(pageNum)/2]
 			sum += mid
