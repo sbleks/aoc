@@ -118,6 +118,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					title = i.Title()
 				}
 				m.selected = title
+				m.list.RemoveItem(m.list.Index())
 				m.screen = 2
 			} else {
 				m.screen = 1
