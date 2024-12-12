@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/joho/godotenv"
 )
 
 func stripHyphens(str string) string {
@@ -82,10 +81,6 @@ func scrapeDays(year string) (out [][]string, err error) {
 }
 
 func ScrapeDay(url string) (*goquery.Selection, string, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	session := os.Getenv("AOC_SESSION")
 	baseURL := "http://adventofcode.com"
 	cookie := http.Cookie{Name: "session", Value: session}
@@ -131,10 +126,6 @@ func ScrapeDay(url string) (*goquery.Selection, string, error) {
 }
 
 func ScrapeDayInput(url string) (string, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	session := os.Getenv("AOC_SESSION")
 	baseURL := "http://adventofcode.com"
 	cookie := http.Cookie{Name: "session", Value: session}

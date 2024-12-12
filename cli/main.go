@@ -13,6 +13,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/joho/godotenv"
 )
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -189,7 +190,10 @@ func (m rootScreenModel) SwitchScreen(model tea.Model) (tea.Model, tea.Cmd) {
 }
 
 func main() {
-
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	p := tea.NewProgram(RootScreen(), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
