@@ -14,31 +14,6 @@ func stripHyphens(str string) string {
 	return r.Replace(str)
 }
 
-// func ExampleScrape() {
-// 	// Request the HTML page.
-// 	res, err := http.Get("http://metalsucks.net")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer res.Body.Close()
-// 	if res.StatusCode != 200 {
-// 		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-// 	}
-
-// 	// Load the HTML document
-// 	doc, err := goquery.NewDocumentFromReader(res.Body)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	// Find the review items
-// 	doc.Find(".left-content article .post-title").Each(func(i int, s *goquery.Selection) {
-// 		// For each item found, get the title
-// 		title := s.Find("a").Text()
-// 		fmt.Printf("Review %d: %s\n", i, title)
-// 	})
-// }
-
 func ScrapeDays(year string) ([][]string, error) {
 	if year == "" {
 		year = "2024"
@@ -74,7 +49,6 @@ func scrapeDays(year string) (out [][]string, err error) {
 			dayNum := parts[len(parts)-1]
 			day := []string{dayNum, baseURL + link}
 			out = append(out, day)
-			// fmt.Printf("a tag %d: Day %s - %s\n", i, dayNum, link)
 		}
 	})
 	return
@@ -117,10 +91,6 @@ func ScrapeDay(url string) (*goquery.Selection, string, error) {
 		h2.ReplaceWithHtml("<h3>" + stripHyphens(h2.Text()) + "</h3>")
 
 	})
-
-	// text, _ := html.Html()
-
-	// log.Printf("%v\n", text)
 
 	return html, title, nil
 }
