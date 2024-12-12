@@ -9,6 +9,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,127 +28,135 @@ func (i item) Description() string { return i.desc }
 func (i item) FilterValue() string { return i.title }
 
 type model struct {
-	list    list.Model
-	spinner spinner.Model
-	err     error
-	screen  int
+	list       list.Model
+	selected   string
+	loadingMsg string
+	spinner    spinner.Model
+	err        error
+	screen     int
 }
 
 func screenOne() *model {
-	days, err := scrape.ScrapeDays("")
-	if err != nil {
-		log.Panicf("%v\n", err)
-	}
+	s := spinner.New()
+	s.Spinner = spinner.Dot
 
-	sort.Slice(days[:], func(i, j int) bool {
-		for x := range days[i] {
-			if days[i][x] == days[j][x] {
-				continue
-			}
-
-			a, err := strconv.Atoi(days[i][x])
-			if err != nil {
-				continue
-			}
-
-			b, err := strconv.Atoi(days[j][x])
-			if err != nil {
-				continue
-			}
-
-			return a < b
-		}
-		return false
-	})
-
-	var items []list.Item
-
-	for _, day := range days {
-		items = append(items, item{title: day[0], desc: day[1]})
-	}
-
-	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
-	m.list.Title = "Which day would you like to bootstrap?"
+	m := model{screen: 0, spinner: s}
 	return &m
 }
 
-func (m model) Init() tea.Cmd {
-	return nil
+type switchMessage int
+
+func SwitchScreens(screen int) tea.Cmd {
+	return func() tea.Msg {
+		return switchMessage(screen)
+	}
+}
+
+func (m *model) getData(title string) tea.Cmd {
+	m.loadingMsg = fmt.Sprintf("Setting up Day %v", title)
+	return func() tea.Msg {
+		parsemd.RunConvert(title)
+		time.Sleep(time.Second)
+		return switchMessage(1)
+	}
+}
+
+func (m *model) Init() tea.Cmd {
+	switch m.screen {
+	case 0:
+		days, err := scrape.ScrapeDays("")
+		if err != nil {
+			log.Panicf("%v\n", err)
+		}
+
+		sort.Slice(days[:], func(i, j int) bool {
+			for x := range days[i] {
+				if days[i][x] == days[j][x] {
+					continue
+				}
+
+				a, err := strconv.Atoi(days[i][x])
+				if err != nil {
+					continue
+				}
+
+				b, err := strconv.Atoi(days[j][x])
+				if err != nil {
+					continue
+				}
+
+				return a < b
+			}
+			return false
+		})
+
+		var items []list.Item
+
+		for _, day := range days {
+			items = append(items, item{title: day[0], desc: day[1]})
+		}
+		m.list = list.New(items, list.NewDefaultDelegate(), 0, 0)
+		m.list.Title = "Which day would you like to bootstrap?"
+		return SwitchScreens(1)
+	case 2:
+		return tea.Batch(m.spinner.Tick, m.getData(m.selected))
+	default:
+		return nil
+	}
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
-			return m, tea.Quit
-		}
-		if msg.String() == "enter" {
-			var title string
-			if i, ok := m.list.SelectedItem().(item); ok {
-				title = i.Title()
-			}
-			// log.Panicf("%s\n", title)
-			parsemd.RunConvert(title)
-			return RootScreen().SwitchScreen(screenTwo())
-		}
-	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
-	}
-
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
-}
-
-func (m model) View() string {
-	return docStyle.Render(m.list.View())
-}
-
-type screenTwoModel struct {
-	spinner spinner.Model
-	err     error
-}
-
-func screenTwo() *screenTwoModel {
-	s := spinner.New()
-	s.Spinner = spinner.Dot
-	// s.Style = inputStyle
-	return &screenTwoModel{
-		spinner: s,
-	}
-}
-
-func (m screenTwoModel) Init() tea.Cmd {
-	return m.spinner.Tick
-}
-
-func (m *screenTwoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC:
 			return m, tea.Quit
-		default:
-			// any other key switches the screen
-			return RootScreen().SwitchScreen(screenOne())
+		case tea.KeyEnter:
+			if m.screen == 1 {
+				var title string
+				if i, ok := m.list.SelectedItem().(item); ok {
+					title = i.Title()
+				}
+				m.selected = title
+				m.screen = 2
+			} else {
+				m.screen = 1
+			}
+			return m, SwitchScreens(m.screen)
 		}
-	case error:
-		m.err = msg
-		return m, nil
 
-	default:
+	case switchMessage:
+		m.screen = int(msg)
+		return RootScreen().SwitchScreen(m)
+
+	case tea.WindowSizeMsg:
+		h, v := docStyle.GetFrameSize()
+		m.list.SetSize(msg.Width-h, msg.Height-v)
+
+	case spinner.TickMsg:
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
 	}
 
-	return m, nil
+	if m.screen == 2 {
+		var cmd tea.Cmd
+		cmd = m.getData(m.selected)
+		return m, cmd
+	} else {
+		var cmd tea.Cmd
+		m.list, cmd = m.list.Update(msg)
+		return m, cmd
+	}
 }
 
-func (m *screenTwoModel) View() string {
-	str := fmt.Sprintf("\n   %s Downloading...\n\n", m.spinner.View())
-	return str
+func (m model) View() string {
+	if m.screen == 1 {
+		return docStyle.Render(m.list.View())
+	} else {
+		str := fmt.Sprintf("\n   %s %s...\n\n", m.spinner.View(), m.loadingMsg)
+		return str
+	}
 }
 
 // Root Screen
