@@ -82,9 +82,9 @@ func RunConvert(day string) {
 		log.Panicf("Could not make dir: %v\n", err)
 	}
 
-	os.Chdir("./" + year + "/day" + day + "/")
-	os.WriteFile("input.txt", []byte(input), os.FileMode(int(0777)))
-	os.WriteFile("README.md", []byte(markdown), os.FileMode(int(0777)))
+	dir := "./" + year + "/day" + day + "/"
+	os.WriteFile(dir+"input.txt", []byte(input), os.FileMode(int(0777)))
+	os.WriteFile(dir+"README.md", []byte(markdown), os.FileMode(int(0777)))
 
 	starterText := `package main
 
@@ -122,10 +122,10 @@ func main() {
 run: main.go
 	go run main.go
 `
-	os.WriteFile("Makefile", []byte(makefileText), os.FileMode(int(0777)))
+	os.WriteFile(dir+"Makefile", []byte(makefileText), os.FileMode(int(0777)))
 
-	if _, err := os.Stat("main.go"); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(dir + "main.go"); errors.Is(err, os.ErrNotExist) {
 		// file does not exist
-		os.WriteFile("main.go", []byte(starterText), os.FileMode(int(0777)))
+		os.WriteFile(dir+"main.go", []byte(starterText), os.FileMode(int(0777)))
 	}
 }
