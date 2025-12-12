@@ -56,7 +56,7 @@ func ConvertDay(selection *goquery.Selection) (string, error) {
 
 func RunConvert(day string) {
 	baseURL := "https://adventofcode.com"
-	year := "2024"
+	year := "2025"
 	dayURL := "/" + year + "/day/" + day
 	selection, title, err := scrape.ScrapeDay(dayURL)
 	if err != nil {

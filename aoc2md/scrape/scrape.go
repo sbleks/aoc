@@ -16,7 +16,7 @@ func stripHyphens(str string) string {
 
 func ScrapeDays(year string) ([][]string, error) {
 	if year == "" {
-		year = "2024"
+		year = "2025"
 	}
 
 	return scrapeDays(year)
