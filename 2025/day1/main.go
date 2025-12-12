@@ -3,9 +3,7 @@ package main
 import (
 	input "aocInput"
 	"log"
-	"math"
 	"strconv"
-	// "strings"
 )
 
 func part1(lines []string) (sum int) {
@@ -59,41 +57,41 @@ func part2(lines []string) (sum int) {
 			log.Fatalf("Could not parse distance: %v", err)
 		}
 
-		rotations := int(math.Floor(float64(dist / 100)))
-		distance := dist % 100
+		startNum := num
+		zerosInRotation := 0
 
-		log.Printf("dir: %c, dist: %d, num: %d, distance: %d, rotations: %d", dir, dist, num, distance, rotations)
-
+		// Count zeros during the rotation by checking each position
+		// Note: we start from i=1 because i=0 is the starting position,
+		// which was already counted as the end of the previous rotation (if it was 0)
 		switch dir {
-		case 'L':
-			// log.Printf("L: num-distance: %d", num-distance)
-			if num-distance < 0 {
-				num = 100 - (distance - num)
-				sum += 1
-				log.Printf("Passing 0, sum: %d, num: %d, distance: %d", sum, num, distance)
-			} else {
-				num -= distance
-			}
 		case 'R':
-			// log.Printf("R: num+distance: %d", num+distance)
-			if num+distance > 99 {
-				num = (num + distance) - 100
-				sum += 1
-				log.Printf("Passing 0, sum: %d, num: %d, distance: %d", sum, num, distance)
-			} else {
-				num += distance
+			// For R: positions are (startNum + i) % 100 for i = 1 to dist
+			// Count how many times this equals 0
+			for i := 1; i <= dist; i++ {
+				pos := (startNum + i) % 100
+				if pos == 0 {
+					zerosInRotation++
+				}
 			}
+			num = (startNum + dist) % 100
+		case 'L':
+			// For L: positions are (startNum - i + 100) % 100 for i = 1 to dist
+			// Count how many times this equals 0
+			for i := 1; i <= dist; i++ {
+				pos := (startNum - i + 100) % 100
+				if pos == 0 {
+					zerosInRotation++
+				}
+			}
+			// Ensure positive modulo result
+			num = ((startNum-dist)%100 + 100) % 100
 		}
+
+		sum += zerosInRotation
 
 		if num < 0 || num > 99 {
 			log.Fatalf("num: %d is out of bounds", num)
 		}
-
-		if rotations > 0 {
-			sum += rotations
-			log.Printf("Adding %d rotations", rotations)
-		}
-
 	}
 	return sum
 }
